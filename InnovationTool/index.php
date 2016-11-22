@@ -8,18 +8,18 @@
 		
 		$url = $_POST['websitelink'];
 		
-		//$text befüllen und Sonderzeichen durch Leerzeichen ersetzen
+		/* //$text befüllen und Sonderzeichen durch Leerzeichen ersetzen
 		$text = preg_replace('/[^\p{Latin}\s]/u', ' ', (file_get_html($url)->plaintext));
 		//Mehrfachleerzeichen zu einem umwandeln
 		$text = preg_replace('!\s+!', ' ', $text);
 		//Leerzeichen einfügen
-		$text = preg_replace('/(?<!\ )[A-Z]/', ' $0', $text);
+		$text = preg_replace('/(?<!\ )[A-Z]/', ' $0', $text); */
 		
 		//String in Array umwandeln
-		$wordsOfWebsite = explode(" ",$text);
+		/* $wordsOfWebsite = explode(" ",$text);
 		//Duplikate entfernen
-		$wordsOfWebsite = array_unique(array_values(array_filter($wordsOfWebsite)));
-		$wordsOfWebsite[] = 'schwägerl';
+		$wordsOfWebsite = array_unique(array_values(array_filter($wordsOfWebsite))); */
+		$wordsOfWebsite = array('schwägerl', 'ähnlich', 'Test', 'groß', 'über','Ärger');
 		
 		//Datenbankverbindung aufbauen
 		$hostname = "localhost"; $user = "root"; $password = ""; $db = "inno_blacklist";
@@ -28,7 +28,8 @@
 		foreach($wordsOfWebsite as $key=>$searchedWord){
 			
 		$tableName = get_table_name($searchedWord);
-		
+		echo $tableName;
+		echo $searchedWord;
 			if($result = mysqli_query($connection, "SELECT word FROM $tableName where word = '".$searchedWord."' " )){
 			
 			
@@ -50,7 +51,7 @@
 	
 	
 	function get_table_name($word){
-		$firstLetter = substr($word,0,1);
+		$firstLetter = mb_substr($word,0,1,"UTF-8");
 		switch($firstLetter){
 			case 'ü': 
 				$firstLetter = 'u';
