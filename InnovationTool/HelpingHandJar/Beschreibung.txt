@@ -1,0 +1,2 @@
+setup.txt unter c anlegen
+im setup.txt den dateipfad der datei angeben
