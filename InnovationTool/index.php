@@ -35,7 +35,7 @@ fclose($myfile);
 		//String in Array umwandeln
 		 $wordsOfWebsite = explode(" ",$text);
 		//Duplikate entfernen
-		$wordsOfWebsite = array_unique(array_values(array_filter($wordsOfWebsite))); 
+		$wordsOfWebsite = array_unique(array_values($wordsOfWebsite)); 
 		
 		echo "Wörter insgesamt: " . count($wordsOfWebsite) . '<br>'; 
 		
