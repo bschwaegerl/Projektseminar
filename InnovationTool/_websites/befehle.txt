@@ -1,0 +1,18 @@
+
+
+create table innovation_check (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, url VARCHAR(300), PRIMARY KEY (id) );
+
+create table _websites_searched (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, url VARCHAR(300), PRIMARY KEY (id) );
+
+create table _innovation_found (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, PRIMARY KEY (id) );
+
+create table _innovation_found_urls (id INT NOT NULL AUTO_INCREMENT, innovation_found_id INT, url VARCHAR(300) NOT NULL, PRIMARY KEY (id), date DATE, FOREIGN KEY (innovation_found_id) REFERENCES _innovation_found (id));
+
+create table _websites (id INT NOT NULL AUTO_INCREMENT, url VARCHAR(300), PRIMARY KEY (id) );
+
+LOAD DATA LOCAL INFILE  'C:\\Users\\sltzr\\Documents\\GitHub\\Projektseminar\\InnovationTool\\_websites\\_websites.txt' INTO TABLE _websites FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\n' (url);
+
+UPDATE _websites SET url = REPLACE(REPLACE(url, '\r', ''), '\n', '');
+
+
+start mysql.exe --local-infile -u root --password
