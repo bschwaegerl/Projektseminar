@@ -67,16 +67,7 @@ fclose($myfile);
 		
 		mysqli_close($connection); 
 		
-		echo "Wörter nicht gefunden: " . count($wordsOfWebsite) . '<br>';
 		
-		$count = 1;
-		
-		foreach($wordsOfWebsite as $notExistingWord){
-		
-		echo $count . " " . $notExistingWord . '<br>';
-		$count++;
-
-		}
 	
 	
 	function get_table_name($word){
