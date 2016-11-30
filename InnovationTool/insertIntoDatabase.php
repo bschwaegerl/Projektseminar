@@ -1,33 +1,43 @@
 <?php
 	
 	//Get all checked Words
-	$checkedWords = $_POST['checkList'];
-	
-	print_r(array_values($checkedWords));
-	
+	if (isset($_POST['checkList'])){
+		$checkedWords = $_POST['checkList'];
+	}else{
+		$checkedWords = NULL;
+	}
+
+		print_r($checkedWords);	
 	//Get all Words
-	$allWords = $_POST['checkListHidden'];
-	
+	if (isset($_POST['checkListHidden'])){
+		$allWords = $_POST['checkListHidden'];
+	}else{
+		$allWords = NULL;
+	}
 	$uncheckedWords = getAllUncheckedWords($allWords, $checkedWords);
 	
 	$connection = buildDatabaseConnection();
 	
-	insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
+	//insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
 	
 	mysqli_close($connection);
 	
 	echo "Die W&ouml;rter wurden in die Datenbank gespeichert! <br>";
 	
 	function getAllUncheckedWords($allWords, $words){
-		print_r(array_values($words));
-		if(isset($allWords)){
+		
+		$words = deleteUrls($words);
+		print_r($words);
 			foreach($allWords as $key=>$word){
-				if(in_array($word, $words)){
+				echo $word;
+				if(in_array($word, $words, true)){
+					
 					unset($allWords[$key]);
 				}
 	
 			}
-		}
+		
+		print_r($allWords);
 	return $allWords;
 	}
 
@@ -50,7 +60,6 @@
 		}
 	}
 	
-	
 	function get_table_name($word){
 				
 			$firstLetter = mb_substr($word,0,1,"UTF-8");
@@ -60,6 +69,14 @@
 			
 			}
 		
+	function deleteUrls($words){
+		foreach($words as $key=>$singleWord){
+			$singleWord = substr($singleWord,0,strpos($singleWord,' ')+1);
+		
+			$words[$key] = $singleWord;
+		}
 	
+		return $words;
+	}
 	
 	?>
