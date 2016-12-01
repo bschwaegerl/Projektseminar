@@ -3,13 +3,24 @@
 
 	<body>
 		
-		//TODO: BUTTON START!! + CHECKBOX WITH WEBSITES
 		<?php
-			$url = "http://www.spiegel.de/";
-			
+		
+			if (isset($_POST['websiteList'])){
+			$websitesForSearch = $_POST['websiteList'];
+			}
 			$connection = buildDatabaseConnection();
+
+			$supposedInnovations = array();
+			foreach($websitesForSearch as $url)
+			{
+			 $supposedInnovationsTemp = getSupposedInnovations($url, $connection);
+			 foreach($supposedInnovationsTemp as $suppInnoTemp)
+			 {
+				 $supposedInnovations[] = $suppInnoTemp;
+			 }
+			}
 			
-			$supposedInnovations = getSupposedInnovations($url, $connection);
+			
 			
 			function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
@@ -45,6 +56,7 @@
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
 
 			 echo "Wörter insgesamt: " . count($wordsOfWebsite) . '<br>'; 
+			 echo '<br></br>';
 
 			//Duplikate im Array entfernen
 			$wordsOfWebsite = array_unique($wordsOfWebsite); 
