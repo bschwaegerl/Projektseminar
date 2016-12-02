@@ -2,25 +2,55 @@
 	<head><title>InnovationTool</title></head> 
 
 	<body>
-		
 		<?php
-		
+			set_time_limit(0);
 			if (isset($_POST['websiteList'])){
 			$websitesForSearch = $_POST['websiteList'];
 			}
+			else
+			{
+				$websitesForSearch = NULL;
+			}	
 			$connection = buildDatabaseConnection();
 
-			$supposedInnovations = array();
+			//function to find for every main url the sub urls
 			foreach($websitesForSearch as $url)
 			{
-			 $supposedInnovationsTemp = getSupposedInnovations($url, $connection);
-			 foreach($supposedInnovationsTemp as $suppInnoTemp)
+			//get for example google.com --> divide with . to get main domain // only google is $host[0]
+			$parse = parse_url($url);
+			$host = explode(".", $parse['host']);
+			crawlPage($url, $host[0], $connection);
+			}
+			
+			//get all urls of main url
+			$allURLsForSearch = getAllURLsForSearch($connection);
+			
+			//get array with validadet and existing links
+			$allURLsForSearch = validateURLsIfExists($allURLsForSearch, $connection);
+
+			//all supposed innvations
+			$supposedInnovations = array();
+			
+			//saves all word which havent be found in an tmp array and after that in an main array for all urls
+			foreach($allURLsForSearch as $urlForSearch)
 			 {
+			  $supposedInnovationsTemp = getSupposedInnovations($urlForSearch, $connection);
+			  foreach($supposedInnovationsTemp as $suppInnoTemp)
+				{
 				 $supposedInnovations[] = $suppInnoTemp;
-			 }
+				}
 			}
 			
 			
+		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
+		
+		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
+		foreach($supposedInnovations as $key=>$suppInno){
+		
+		echo "<input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/>".$supposedInnovations[$key][0]. " ".$supposedInnovations[$key][1]."<br>";
+		echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
+
+		}
 			
 			function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
@@ -33,13 +63,10 @@
 			function getSupposedInnovations($url, $connection){
 			
 			include_once('simple_html_dom.php');
-			set_time_limit(0);
-			
-			//TODO: ARRAY URLS
-			
+			set_time_limit(0);			
 			
 			//komplettes html file
-			$text = file_get_html($url)->plaintext;
+			$text = (file_get_html($url)->plaintext) or die;
 		
 			//alles Sonderzeichen entfernen außer "-"
 			$text = preg_replace('/[^\p{Latin}\s-]/u', ' ', $text);
@@ -54,10 +81,7 @@
 			
 			//String in Array umwandeln anhand von Leerzeichen (trim um unnötige Leerzeichen zu entfernen)
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
-
-			 echo "Wörter insgesamt: " . count($wordsOfWebsite) . '<br>'; 
-			 echo '<br></br>';
-
+			
 			//Duplikate im Array entfernen
 			$wordsOfWebsite = array_unique($wordsOfWebsite); 
 			//leere array elemente entfernen
@@ -105,6 +129,10 @@
 		
 			foreach($wordsOfWebsite as $key=>$searchedWord){	
 				$wordsOfWebsiteWithUrls[] = array($searchedWord,$url);	
+				if(mysqli_query($connection, "INSERT INTO innovation_check (word, url) VALUES ('" . $searchedWord . "', '" . $url . "')" )){
+			}else{
+				echo "innovation_check failed";
+			}
 			}
 
 			return $wordsOfWebsiteWithUrls;
@@ -121,21 +149,59 @@
 			return $firstLetter;
 			
 			}
+			
+			function crawlPage($url, $host, $connection){
+			
+			$input = @file_get_contents($url) or die("Could not access file: $url");
+			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+				
+			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
+				foreach($matches as $match) {
+					// $match[2] = link address
+					//$match[3] = link text
+					//trim all spaces from link
+					$websiteLink = trim($match[2]);
+					
+					//if host is in match then write link into database - deletes all links to other websites
+					if(strpos($websiteLink, $host)){	
+					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
+					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink."') LIMIT 1")){
+					} else {}  
+					}
+				}
+			}	
+			}
 		
-			mysqli_close($connection);
+			function getAllURLsForSearch($connection){
+				
+				$allURLsOfWebsite = array();
+				$result = mysqli_query($connection, "SELECT url FROM _websites_searched" );
+				while($row = mysqli_fetch_array($result))
+				{
+					$allURLsOfWebsite[] = $row['url'];
+				}
+				return $allURLsOfWebsite;
+			}	
 		
-		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
-		
-		
-		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
-		foreach($supposedInnovations as $key=>$suppInno){
-		
-		echo "<input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]. " ".$supposedInnovations[$key][1]. "\"/>".$supposedInnovations[$key][0]. " ".$supposedInnovations[$key][1]."<br>";
-		echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
-
-		}
-		
-		?>
+			//checks if a url exits. if not: will be deleted from array and table;
+			function validateURLsIfExists($allURLsForSearch, $connection) {
+				
+				foreach($allURLsForSearch as $key=>$url)
+				{
+				if(!file_get_contents($url)){
+					
+					//delete from table
+					mysqli_query($connection, "DELETE FROM _websites_searched where url = '" . $url . "'");
+				
+					//delete from array
+					unset($allURLsForSearch[$key]);
+				}
+				}
+				return $allURLsForSearch;
+			}
+			
+?>
 		
 			<input type="submit" id="btSend" value="Send Words!"/>
 		</form>

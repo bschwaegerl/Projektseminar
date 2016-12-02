@@ -6,41 +6,27 @@
 	}else{
 		$checkedWords = NULL;
 	}
-
-		print_r($checkedWords);	
+	
 	//Get all Words
 	if (isset($_POST['checkListHidden'])){
 		$allWords = $_POST['checkListHidden'];
 	}else{
 		$allWords = NULL;
 	}
-	$uncheckedWords = getAllUncheckedWords($allWords, $checkedWords);
-	
+	//build database connection
 	$connection = buildDatabaseConnection();
 	
-	//insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
+	//get all unchecked words
+	$uncheckedWords = getUncheckedWords($allWords, $checkedWords);
 	
-	mysqli_close($connection);
+	//insert unchecked words into blacklist and mark all checked words as innovations
+	insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
 	
-	echo "Die W&ouml;rter wurden in die Datenbank gespeichert! <br>";
+	cleanupUpEnvironment($connection);
 	
-	function getAllUncheckedWords($allWords, $words){
-		
-		$words = deleteUrls($words);
-		print_r($words);
-			foreach($allWords as $key=>$word){
-				echo $word;
-				if(in_array($word, $words, true)){
-					
-					unset($allWords[$key]);
-				}
-	
-			}
-		
-		print_r($allWords);
-	return $allWords;
-	}
+	mysqli_close($connection);	
 
+	
 	function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
 				$connection = mysqli_connect($hostname, $user, $password, $db);
@@ -50,14 +36,58 @@
 			}
 	
 	function insertIntoDatabase($connection, $uncheckedWords, $checkedWords){
-		foreach($uncheckedWords as $key=>$word){
-			$tableName = get_table_name($word);
-			if(mysqli_query($connection, "INSERT IGNORE INTO ".$tableName."(word) VALUES ('".$word."')" )){
-				echo $word;
+		
+		
+		//add words to blacklist
+		foreach($uncheckedWords as $key=>$uncheckedWord){
+			$tableName = get_table_name($uncheckedWord);
+			if(mysqli_query($connection, "INSERT IGNORE INTO ".$tableName."(word) VALUES ('".$uncheckedWord."')" )){
 			}else{
 				echo "failed";
 			}
 		}
+		//add checked words to innovation_found and innovation_found_urls
+		foreach($checkedWords as $key=>$checkedWord) {
+						 
+			if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
+				SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
+			(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
+			
+			//current system date
+			date_default_timezone_set('Europe/Berlin');
+			$date = date('d/m/Y H:i:s', time());
+			
+				if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
+					SELECT * FROM (SELECT
+				(SELECT id from _innovation_found where word = '".$checkedWord."'),
+				(SELECT url from innovation_check where word = '".$checkedWord."'),
+				'".date("Y-m-d H:i:s", time())."') as tmp
+				WHERE NOT EXISTS
+				(SELECT * FROM _innovation_found_urls where url = 
+				(SELECT url from innovation_check where word = '".$checkedWord."')) LIMIT 1" )){
+					
+					echo $checkedWord ." added to _innovation_found_urls!";
+			}else{
+				echo "FOREIGNKEY FAILURE";
+			}
+			echo $checkedWord. " added to _innovation_found!";
+			}else{
+				echo "PRIMARYKEY FAILURE";
+			}
+			
+		}
+	}
+	
+	function getUncheckedWords($allWords, $checkedWords){
+		
+		foreach($allWords as $key=>$word)
+		{
+			if(in_array($word, $checkedWords)){
+				unset($allWords[$key]);
+			}
+				
+		}
+		return $allWords;
 	}
 	
 	function get_table_name($word){
@@ -68,15 +98,14 @@
 			return $firstLetter;
 			
 			}
+			
+	function cleanupUpEnvironment($connection){
 		
-	function deleteUrls($words){
-		foreach($words as $key=>$singleWord){
-			$singleWord = substr($singleWord,0,strpos($singleWord,' ')+1);
-		
-			$words[$key] = $singleWord;
-		}
-	
-		return $words;
+		mysqli_query($connection, "DELETE FROM innovation_check");
+
+		mysqli_query($connection, "DELETE FROM _websites_searched");
+
 	}
+		
 	
 	?>
