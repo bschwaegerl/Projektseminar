@@ -3,16 +3,24 @@
 
 	<body>
 		<?php
+		
 			set_time_limit(0);
+			
+			//gets the checked websites from the index.php
 			if (isset($_POST['websiteList'])){
 			$websitesForSearch = $_POST['websiteList'];
 			}
 			else
 			{
 				$websitesForSearch = NULL;
-			}	
+			}
+			
+			//database connection
 			$connection = buildDatabaseConnection();
-
+			
+			//variable to count all words 
+			$counterForAllWords = 0;
+			
 			//function to find for every main url the sub urls
 			foreach($websitesForSearch as $url)
 			{
@@ -25,9 +33,6 @@
 			//get all urls of main url
 			$allURLsForSearch = getAllURLsForSearch($connection);
 			
-			//get array with validadet and existing links
-			$allURLsForSearch = validateURLsIfExists($allURLsForSearch, $connection);
-
 			//all supposed innvations
 			$supposedInnovations = array();
 			
@@ -39,19 +44,28 @@
 				{
 				 $supposedInnovations[] = $suppInnoTemp;
 				}
+			} 
+		
+		//analysis of the run
+		foreach($websitesForSearch as $key=>$url)
+			{
+		echo "MAIN-URL " .$key. ": " . $url	. '<br>';
 			}
-			
-			
+		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _websites_searched" )). '<br>';
+		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
 		
+		//form action for button click
 		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
 		foreach($supposedInnovations as $key=>$suppInno){
 		
+		//checklist --> post array with checked words
 		echo "<input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/>".$supposedInnovations[$key][0]. " ".$supposedInnovations[$key][1]."<br>";
+		//post array with all word not found
 		echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
 
 		}
-			
+			//build the database connection
 			function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
 				$connection = mysqli_connect($hostname, $user, $password, $db);
@@ -60,13 +74,14 @@
 				return $connection;
 			}
 			
+			//get html file, divide into array, compares  every word of array with the database
 			function getSupposedInnovations($url, $connection){
 			
 			include_once('simple_html_dom.php');
 			set_time_limit(0);			
 			
 			//komplettes html file
-			$text = (file_get_html($url)->plaintext) or die;
+			$text = file_get_html($url)->plaintext;
 		
 			//alles Sonderzeichen entfernen außer "-"
 			$text = preg_replace('/[^\p{Latin}\s-]/u', ' ', $text);
@@ -81,6 +96,10 @@
 			
 			//String in Array umwandeln anhand von Leerzeichen (trim um unnötige Leerzeichen zu entfernen)
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
+			
+			//count every word
+			global $counterForAllWords;
+			$counterForAllWords += count($wordsOfWebsite);
 			
 			//Duplikate im Array entfernen
 			$wordsOfWebsite = array_unique($wordsOfWebsite); 
@@ -140,7 +159,8 @@
 		
 				
 			}
-			
+
+			//get the table name for the search in the database
 			function get_table_name($word){
 				
 			$firstLetter = mb_substr($word,0,1,"UTF-8");
@@ -150,6 +170,7 @@
 			
 			}
 			
+			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _websites_searched
 			function crawlPage($url, $host, $connection){
 			
 			$input = @file_get_contents($url) or die("Could not access file: $url");
@@ -173,6 +194,7 @@
 			}	
 			}
 		
+			//returns the result of all websites in table _websites_searched
 			function getAllURLsForSearch($connection){
 				
 				$allURLsOfWebsite = array();
@@ -184,23 +206,6 @@
 				return $allURLsOfWebsite;
 			}	
 		
-			//checks if a url exits. if not: will be deleted from array and table;
-			function validateURLsIfExists($allURLsForSearch, $connection) {
-				
-				foreach($allURLsForSearch as $key=>$url)
-				{
-				if(!file_get_contents($url)){
-					
-					//delete from table
-					mysqli_query($connection, "DELETE FROM _websites_searched where url = '" . $url . "'");
-				
-					//delete from array
-					unset($allURLsForSearch[$key]);
-				}
-				}
-				return $allURLsForSearch;
-			}
-			
 ?>
 		
 			<input type="submit" id="btSend" value="Send Words!"/>

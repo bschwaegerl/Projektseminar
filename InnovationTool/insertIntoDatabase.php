@@ -22,11 +22,12 @@
 	//insert unchecked words into blacklist and mark all checked words as innovations
 	insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
 	
+	//deletes everything from table _wesbties_searched and table _innvation_check
 	cleanupUpEnvironment($connection);
 	
 	mysqli_close($connection);	
 
-	
+	//build database connection
 	function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
 				$connection = mysqli_connect($hostname, $user, $password, $db);
@@ -35,6 +36,7 @@
 				return $connection;
 			}
 	
+	//insert words into blacklist ($uncheckedWord) and add words to _innovation_found / _innovation_found_urls ($checkedWords)
 	function insertIntoDatabase($connection, $uncheckedWords, $checkedWords){
 		
 		
@@ -48,7 +50,8 @@
 		}
 		//add checked words to innovation_found and innovation_found_urls
 		foreach($checkedWords as $key=>$checkedWord) {
-						 
+			
+			//insert into _innovation_found if not exists			
 			if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
 				SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
 			(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
@@ -57,6 +60,7 @@
 			date_default_timezone_set('Europe/Berlin');
 			$date = date('d/m/Y H:i:s', time());
 			
+			//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
 				if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
 					SELECT * FROM (SELECT
 				(SELECT id from _innovation_found where word = '".$checkedWord."'),
@@ -78,6 +82,7 @@
 		}
 	}
 	
+	//compares  every word of _innovation_check with the checkedWord array . if word of all words is in checkedWOrdArray it will be deleted
 	function getUncheckedWords($allWords, $checkedWords){
 		
 		foreach($allWords as $key=>$word)
@@ -98,7 +103,8 @@
 			return $firstLetter;
 			
 			}
-			
+	
+	//function for cleaning up the environment
 	function cleanupUpEnvironment($connection){
 		
 		mysqli_query($connection, "DELETE FROM innovation_check");
