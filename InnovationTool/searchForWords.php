@@ -173,6 +173,12 @@
 			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _websites_searched
 			function crawlPage($url, $host, $connection){
 			
+			// writes into table _websites searched MAIN URL
+					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+					SELECT * FROM(SELECT '" . $url . "') as tmp 
+					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$url."') LIMIT 1")){
+					} else {} 
+					
 			$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
@@ -186,7 +192,7 @@
 					//if host is in match then write link into database - deletes all links to other websites
 					if(strpos($websiteLink, $host)){
 					
-					// writes into table _websites searched
+					// writes into table _websites searched SUB URL
 					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
 					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
 					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink."') LIMIT 1")){
@@ -207,7 +213,7 @@
 							//if host is in match then write link into database - deletes all links to other websites
 							if(strpos($websiteLink2, $host)){
 					
-							// writes into table _websites searched
+							// writes into table _websites searched SUBSUB URL
 							if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
 							SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
 							WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink2."') LIMIT 1")){
