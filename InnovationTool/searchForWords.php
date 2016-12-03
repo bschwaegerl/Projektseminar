@@ -173,7 +173,7 @@
 			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _websites_searched
 			function crawlPage($url, $host, $connection){
 			
-			$input = @file_get_contents($url) or die("Could not access file: $url");
+			$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -184,16 +184,41 @@
 					$websiteLink = trim($match[2]);
 					
 					//if host is in match then write link into database - deletes all links to other websites
-					if(strpos($websiteLink, $host)){	
+					if(strpos($websiteLink, $host)){
+					
+					// writes into table _websites searched
 					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
 					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
 					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink."') LIMIT 1")){
-					} else {}  
+					} else {} 
+
+					//goes into depth 2
+					
+					$input2 = @file_get_contents($websiteLink) ;
+					$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+				
+					if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
+						foreach($matches2 as $match2) {
+							// $match[2] = link address
+							//$match[3] = link text
+							//trim all spaces from link
+							$websiteLink2 = trim($match2[2]);
+							
+							//if host is in match then write link into database - deletes all links to other websites
+							if(strpos($websiteLink2, $host)){
+					
+							// writes into table _websites searched
+							if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+							SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
+							WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink2."') LIMIT 1")){
+							} else {} 
+							}
 					}
-				}
+					}
 			}	
 			}
-		
+			}
+			}
 			//returns the result of all websites in table _websites_searched
 			function getAllURLsForSearch($connection){
 				
