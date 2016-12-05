@@ -5,7 +5,7 @@
 		<?php
 		
 			set_time_limit(0);
-			
+			$time = microtime(true);
 			//gets the checked websites from the index.php
 			if (isset($_POST['websiteList'])){
 			$websitesForSearch = $_POST['websiteList'];
@@ -23,11 +23,9 @@
 			
 			//function to find for every main url the sub urls
 			foreach($websitesForSearch as $url)
-			{
-			//get for example google.com --> divide with . to get main domain // only google is $host[0]
-			$parse = parse_url($url);
-			$host = explode(".", $parse['host']);
-			crawlPage($url, $host[0], $connection);
+			{	
+			//get for example google.com 
+			crawlPage($url,parse_url($url, PHP_URL_HOST) , $connection);
 			}
 			
 			//get all urls of main url
@@ -54,7 +52,7 @@
 		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _websites_searched" )). '<br>';
 		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
-		
+		echo "Benötigte Zeit: " . (microtime(true) - $time) . " Sekunden";
 		//form action for button click
 		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
 		foreach($supposedInnovations as $key=>$suppInno){
@@ -179,7 +177,7 @@
 					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$url."') LIMIT 1")){
 					} else {} 
 					
-			$input = @file_get_contents($url);
+			 $input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -197,7 +195,6 @@
 					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
 					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink."') LIMIT 1")){
 					} else {} 
-
 					//goes into depth 2
 					
 					$input2 = @file_get_contents($websiteLink) ;
@@ -219,11 +216,11 @@
 							WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink2."') LIMIT 1")){
 							} else {} 
 							}
-					}
-					}
-			}	
+					 
+					} 
+			} 
 			}
-			}
+			} 
 			}
 			//returns the result of all websites in table _websites_searched
 			function getAllURLsForSearch($connection){
