@@ -13,6 +13,7 @@
 			else
 			{
 				$websitesForSearch = NULL;
+				exit("Bitte mindestens eine Website zum Durchsuchen auswählen!");
 			}
 			
 			//database connection
@@ -53,6 +54,7 @@
 		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
 		echo "Benötigte Zeit: " . (microtime(true) - $time) . " Sekunden";
+		
 		//form action for button click
 		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
 		foreach($supposedInnovations as $key=>$suppInno){
@@ -80,9 +82,19 @@
 			
 			//komplettes html file
 			$text = file_get_html($url)->plaintext;
-		
+			
+			//Umlaute zurück erstellen
+			$text = preg_replace('/&auml;/','ä',$text);
+			$text = preg_replace('/&ouml;/','ö',$text);
+			$text = preg_replace('/&uuml;/','ü',$text);
+			$text = preg_replace('/&Auml;/','Ä',$text);
+			$text = preg_replace('/&Ouml;/','Ö',$text);
+			$text = preg_replace('/&Uuml;/','Ü',$text);
+			$text = preg_replace('/&szlig;/','ß',$text);
+			
 			//alles Sonderzeichen entfernen außer "-"
 			$text = preg_replace('/[^\p{Latin}\s-]/u', ' ', $text);
+			
 			
 			//Bindestriche vor oder nach Leerzeichen weglöschen
 			$text = preg_replace('/- /', ' ', $text);
@@ -94,7 +106,7 @@
 			
 			//String in Array umwandeln anhand von Leerzeichen (trim um unnötige Leerzeichen zu entfernen)
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
-			
+			 
 			//count every word
 			global $counterForAllWords;
 			$counterForAllWords += count($wordsOfWebsite);
@@ -107,7 +119,7 @@
 			
 				
 			
-			$stopListGerman = array("ab", "aber", "als", "am", "an", "auch", "auf", "aus", "bei", "bin", "bis", "bist", "da","ca", "dadurch", "daher", "darum", "das", "dass", "daß", "dein", "deine", "dem", "den", "de", "der", "dessen", "deshalb", "die", "dies", "dieser", "dieses","doch", "dort", "du", "durch", "ein", "eine", "einem", "einen","einer", "eines", "er", "es", "euer", "für", "hatte", "hatten", "hattest","hattet", "hier", "hinter", "ich", "ihr", "ihre", "im", "in", "ist", "ja", "je" , "jede","jedem", "jeden", "jeder", "jedes", "jener", "jenes", "jetzt", "kann", "kannst", "können","könnt", "machen", "mein", "meine", "mit", "muß", "mußt", "musst", "müssen", "müßt","nach", "nachdem", "nein", "nicht", "nun", "oder", "ob", "seid", "sein", "seine", "sich", "sie","sind", "so", "soll", "sollen", "sollst", "sollt", "sonst", "soweit", "sowie", "und", "unser", "unsere","unter", "vom", "von", "vor", "wann", "warum", "was", "weiter", "weitere", "wenn", "wer", "werde", "werden","werdet", "weshalb", "wie", "wieder", "wieso", "wir", "wird", "wirst", "wo", "woher", "wohin","um", "zu", "zum", "zur", "über");
+			$stopListGerman = array("ab", "aber", "als", "am", "an", "auch", "auf", "aus", "bei", "bin", "bis", "bist", "da","ca", "dadurch", "daher", "darum", "das", "dass", "daß", "dein", "deine", "dem", "den", "de", "der", "dessen", "deshalb", "die", "dies", "dieser", "dieses","doch", "dort", "du", "durch", "ein", "eine", "einem", "einen","einer", "eines", "er", "es", "euer", "für", "hatte", "hatten", "hattest","hattet", "hier", "hinter", "ich", "ihr", "ihre", "im", "in", "ist", "ja", "je" , "jede","jedem", "jeden", "jeder", "jedes", "jener", "jenes", "jetzt", "kann", "kannst", "können","könnt", "machen", "mein", "meine", "mit", "muß", "mußt", "musst", "müssen", "müßt","nach", "nachdem", "nein", "nicht", "nochmal", "nun", "oder", "ob", "seid", "sein", "seine", "sich", "sie","sind", "so", "soll", "sollen", "sollst", "sollt", "sonst", "soweit", "sowie", "und", "unser", "unsere","unter", "vom", "von", "vor", "wann", "warum", "was", "weiter", "weitere", "wenn", "wer", "werde", "werden","werdet", "weshalb", "wie", "wieder", "wieso", "wir", "wird", "wirst", "wo", "woher", "wohin", "www","um", "zu", "zum", "zur", "über");
 			$stopListEnglish = array("a" , "about" , "above" , "after" , "again" , "against" , "all" , "am" , "an" , "and" , "any" , "are" , "aren't" , "as" , "at" , "be" , "because" , "been" , "before" , "being" , "below" , "between" , "both" , "but" , "by" , "can't" , "cannot" , "could" , "couldn't" , "did" , "didn't" , "do" , "does" , "doesn't" , "doing" , "don't" , "down" , "during" , "each" , "few" , "for" , "from" , "further" ,"go", "had" , "hadn't" , "has" , "hasn't" , "have" , "haven't" , "having" , "he" , "he'd" , "he'll" , "he's" , "her" , "here" , "here's" , "hers" , "herself" , "him" , "himself" , "his" , "how" , "how's" , "i" , "i'd" , "i'll" , "i'm" , "i've" , "if" , "in" , "into" , "is" , "isn't" , "it" , "it's" , "its" , "itself" , "let's" , "me" , "more" , "most" , "mustn't" , "my" , "myself" , "no" , "nor" , "not" , "of" , "off" , "on" , "once" , "only" , "or" , "other" , "ought" , "our" , "ours	ourselves" , "out" , "over" , "own" , "same" , "shan't" , "she" , "she'd" , "she'll" , "she's" , "should" , "shouldn't" , "so" , "some" , "such" , "than" , "that" , "that's" , "the" , "their" , "theirs" , "them" , "themselves" , "then" , "there" , "there's" , "these" , "they" , "they'd" , "they'll" , "they're" , "they've" , "this" , "those" , "through" , "to" , "too" , "under" , "until" , "up" , "very" , "was" , "wasn't" , "we" , "we'd" , "we'll" , "we're" , "we've" , "were" , "weren't" , "what" , "what's" , "when" , "when's" , "where" , "where's" , "which" , "will", "while" , "who" , "who's" , "whom" , "why" , "why's" , "with" , "won't" , "would" , "wouldn't" , "you" , "you'd" , "you'll" , "you're" , "you've" , "your" , "yours" , "yourself" , "yourselves" );
 
 			//alle Array Elemente entfernen, deren wortlänge 1 ist (A, B, C, ...), in englischer oder deutscher stopliste enthalten
@@ -177,7 +189,7 @@
 					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$url."') LIMIT 1")){
 					} else {} 
 					
-			 $input = @file_get_contents($url);
+			/* $input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -197,7 +209,7 @@
 					} else {} 
 					//goes into depth 2
 					
-					$input2 = @file_get_contents($websiteLink) ;
+					 $input2 = @file_get_contents($websiteLink) ;
 					$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 					if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
@@ -217,11 +229,11 @@
 							} else {} 
 							}
 					 
-					}
+					} 
 			} 
 			}
 			} 
-			}
+			}*/
 			}
 			//returns the result of all websites in table _websites_searched
 			function getAllURLsForSearch($connection){

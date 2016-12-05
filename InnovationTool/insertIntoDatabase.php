@@ -43,54 +43,61 @@
 		//add words to blacklist
 		foreach($uncheckedWords as $key=>$uncheckedWord){
 			$tableName = get_table_name($uncheckedWord);
-			if(mysqli_query($connection, "INSERT IGNORE INTO ".$tableName."(word) VALUES ('".$uncheckedWord."')" )){
+			if(mysqli_query($connection, "INSERT INTO ".$tableName."(word) VALUES ('".$uncheckedWord."')" )){
+				
+			
 			}else{
-				echo "failed";
+				echo $uncheckedWord."failed adding word to Blacklist";
 			}
 		}
 		//add checked words to innovation_found and innovation_found_urls
+	if(!empty($checkedWords)){
 		foreach($checkedWords as $key=>$checkedWord) {
 			
 			//insert into _innovation_found if not exists			
 			if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
 				SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
 			(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
+				
+				echo $checkedWord. " added to _innovation_found!";
+			}else{
+				echo $checkedWord. " existiert bereits in der Tabelle _innovation_found";
+			}
 			
 			//current system date
 			date_default_timezone_set('Europe/Berlin');
 			$date = date('d/m/Y H:i:s', time());
+			echo $date;
 			
 			//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
-				if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
+			if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
 					SELECT * FROM (SELECT
 				(SELECT id from _innovation_found where word = '".$checkedWord."'),
 				(SELECT url from innovation_check where word = '".$checkedWord."'),
-				'".date("Y-m-d H:i:s", time())."') as tmp
-				WHERE NOT EXISTS
-				(SELECT * FROM _innovation_found_urls where url = 
-				(SELECT url from innovation_check where word = '".$checkedWord."')) LIMIT 1" )){
+				'".date("Y-m-d H:i:s", time())."') as tmp LIMIT 1" )){
 					
 					echo $checkedWord ." added to _innovation_found_urls!";
+					
 			}else{
-				echo "FOREIGNKEY FAILURE";
-			}
-			echo $checkedWord. " added to _innovation_found!";
-			}else{
-				echo "PRIMARYKEY FAILURE";
+					echo "FOREIGNKEY FAILURE";
 			}
 			
+		
 		}
 	}
+	}
+	
 	
 	//compares  every word of _innovation_check with the checkedWord array . if word of all words is in checkedWOrdArray it will be deleted
 	function getUncheckedWords($allWords, $checkedWords){
 		
 		foreach($allWords as $key=>$word)
 		{
-			if(in_array($word, $checkedWords)){
-				unset($allWords[$key]);
-			}
-				
+			if(!empty($checkedWords)){
+				if(in_array($word, $checkedWords)){
+					unset($allWords[$key]);
+				}
+			}	
 		}
 		return $allWords;
 	}
