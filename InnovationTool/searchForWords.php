@@ -217,10 +217,11 @@
 							} else {} 
 							}
 					 
-					} 
+					}
 			} 
 			}
 			} 
+			}
 			}
 			//returns the result of all websites in table _websites_searched
 			function getAllURLsForSearch($connection){
