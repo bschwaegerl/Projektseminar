@@ -1,0 +1,23 @@
+TODO PROJEKTSEMINAR
+1) https://de.wikipedia.org/wiki/Österreich wird so angezeigt in Browser
+ ---> aber eig: https://de.wikipedia.org/wiki/%C3%96sterreich
+ ---> Formattierungen ausprobiert: url_decode macht aus %C3%96 ein Österreich
+ ---> aber wird falsch in Datenbank weggespeichert aus dem eigentlichen Ö --> %C3%96 --> dann ?
+ ---> bei Abfrage von der Datenbank wird der Links als https://de.wikipedia.org/wiki/?sterreich zurückgegeben und nichts gefunden
+ 2) Wörter finden: 
+	Momentan: läuft mit längeWort <= 4 -> like Operator
+						längeWort > 4 match against
+	config file verändern ja/nein?
+	momentane Laufzeit beeinträchtigt: aus 4 Sekunden nur durch match wurde durch match + like 11 Sekunden => Laufzeit verdoppelt, fast verdreifacht
+	Vorteil mit match und like: alle Wörter werden gefunden -> fehlerresistenter
+3) _websites_searched
+	wird als temporäre Tabelle hergenommen. alle urls, die zu einem suchdurchgang gehören werden dort reingeschrieben
+	-> Suche läuft aufgrund vn der länge von _websites_searched
+	Frage: neue Tabelle anlegen, um die tatsächlich durchsuchten insgesamt festhalten zu können?
+	oder: code seitig lösen.
+4) mögliche Bearbeitung von websites
+		Ausgabe in index.php und auswahl der bereits vorhandenen.
+		Was ist aber wenn jemand neue websites hinzufügen will?
+5)	innovation_check ist temporär. (Ändern vom Namen zu _innovation_check)
+	wird bei Abbruch, sprich beim Wechsel von searchForWords.php zu insertIntoDatabase.php nach reinschreiben in Datenbank gelöscht.
+	ABER: Bei Abbruch also von searchForWords.php zu index.php noch teilweise befüllt. betrifft genauso  _websites_searched

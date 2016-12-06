@@ -25,8 +25,9 @@
 			//function to find for every main url the sub urls
 			foreach($websitesForSearch as $url)
 			{	
+
 			//get for example google.com 
-			crawlPage($url,parse_url($url, PHP_URL_HOST) , $connection);
+			crawlPage($url,$url , $connection);
 			}
 			
 			//get all urls of main url
@@ -103,7 +104,6 @@
 			//Mehrfachleerzeichen entfernen
 			$text = mb_ereg_replace('\s+', ' ', $text);		
 
-			
 			//String in Array umwandeln anhand von Leerzeichen (trim um unnötige Leerzeichen zu entfernen)
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
 			 
@@ -125,7 +125,7 @@
 			//alle Array Elemente entfernen, deren wortlänge 1 ist (A, B, C, ...), in englischer oder deutscher stopliste enthalten
 			foreach($wordsOfWebsite as $key=>$arrayWord)
 			{
-				if(strlen($arrayWord) == 1  || strlen($arrayWord) == 2  || in_array(mb_strtolower($arrayWord), $stopListGerman) || in_array(mb_strtolower($arrayWord), $stopListEnglish))
+				if(strlen($arrayWord) == 1  || in_array(mb_strtolower($arrayWord), $stopListGerman) || in_array(mb_strtolower($arrayWord), $stopListEnglish))
 				{
 					unset($wordsOfWebsite[$key]);
 				}
@@ -136,8 +136,12 @@
 			foreach($wordsOfWebsite as $key=>$searchedWord){
 						
 			$tableName = get_table_name($searchedWord);
-						
-				if($result = mysqli_query($connection, "SELECT word FROM `" .$tableName."`  where MATCH(word) AGAINST('".$searchedWord."' IN BOOLEAN MODE) " ))
+					
+				//check string lenght, if string is shorter than 4 chars were handleing it with the like operator. otherwise we re using the match against
+				
+				$lenghtOfWord = strlen($searchedWord);
+				
+				if(($result = mysqli_query($connection, "SELECT word FROM `" .$tableName."`  WHERE MATCH(word) AGAINST('".$searchedWord."' IN BOOLEAN MODE) " )) && $lenghtOfWord > 3)
 				
 				
 				{				
@@ -151,7 +155,19 @@
 					}
 						mysqli_free_result($result); 
 				}
-		
+				 else if(($result = mysqli_query($connection, "SELECT word FROM `" .$tableName."`  WHERE word LIKE '".$searchedWord."'" )) && $lenghtOfWord < 4)
+				{
+					while($row = mysqli_fetch_array($result)){
+					
+						if (strcmp(strtolower($searchedWord),strtolower($row[0]))== 0){ 
+						
+						unset($wordsOfWebsite[$key]);
+						}
+			
+					}
+					mysqli_free_result($result); 
+
+				} 
 			}
 			
 			$wordsOfWebsiteWithUrls = array();
