@@ -1,8 +1,8 @@
+create table _tmp_websites_actual_run(id int AUTO_INCREMENT PRIMARY KEY, url varchar(255));
 
+create table _innovation_check (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, url VARCHAR(300), PRIMARY KEY (id) );
 
-create table innovation_check (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, url VARCHAR(300), PRIMARY KEY (id) );
-
-create table _websites_searched (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, url VARCHAR(300), PRIMARY KEY (id) );
+create table _websites_searched (id INT NOT NULL AUTO_INCREMENT, url VARCHAR(300), PRIMARY KEY (id) );
 
 create table _innovation_found (id INT NOT NULL AUTO_INCREMENT, word VARCHAR(100) NOT NULL, PRIMARY KEY (id) );
 
