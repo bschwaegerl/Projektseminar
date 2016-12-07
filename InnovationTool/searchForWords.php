@@ -93,6 +93,9 @@
 			$text = preg_replace('/&Uuml;/','Ü',$text);
 			$text = preg_replace('/&szlig;/','ß',$text);
 			
+			//Mehrfachleerzeichen entfernen
+			$text = mb_ereg_replace('\s+', ' ', $text);
+			
 			//alles Sonderzeichen entfernen außer "-"
 			$text = preg_replace('/[^\p{Latin}\s-]/u', ' ', $text);
 			
@@ -100,9 +103,9 @@
 			//Bindestriche vor oder nach Leerzeichen weglöschen
 			$text = preg_replace('/- /', ' ', $text);
 			$text = preg_replace('/ -/', ' ', $text);
+			
 
-			//Mehrfachleerzeichen entfernen
-			$text = mb_ereg_replace('\s+', ' ', $text);		
+					
 
 			//String in Array umwandeln anhand von Leerzeichen (trim um unnötige Leerzeichen zu entfernen)
 			 $wordsOfWebsite = array_map('trim', explode(' ', $text));
