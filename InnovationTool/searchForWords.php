@@ -27,12 +27,13 @@
 			{	
 
 			//get for example google.com 
-			crawlPage($url,$url , $connection);
+			crawlPage($url,parse_url($url, PHP_URL_HOST) , $connection);
 			}
 			
 			//get all urls of main url
 			$allURLsForSearch = getAllURLsForSearch($connection);
 			
+			//TODO alle Links, die bereits durchsucht worden sind selektieren und mit $allURLsForSearch vergleichen
 			//all supposed innvations
 			$supposedInnovations = array();
 			
@@ -208,7 +209,7 @@
 					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1")){
 					} else {} 
 					
-			/* $input = @file_get_contents($url);
+			$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -228,7 +229,7 @@
 					} else {} 
 					//goes into depth 2
 					
-					 $input2 = @file_get_contents($websiteLink) ;
+					/*$input2 = @file_get_contents($websiteLink) ;
 					$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 					if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
@@ -249,10 +250,10 @@
 							}
 					 
 					} 
-			} 
+			} */
 			}
 			} 
-			}*/
+			}
 			}
 			//returns the result of all websites in table _tmp_websites_actual_run
 			function getAllURLsForSearch($connection){
