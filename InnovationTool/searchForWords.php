@@ -51,7 +51,7 @@
 			{
 		echo "MAIN-URL " .$key. ": " . $url	. '<br>';
 			}
-		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _websites_searched" )). '<br>';
+		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _tmp_websites_actual_run" )). '<br>';
 		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
 		echo "Benötigte Zeit: " . (microtime(true) - $time) . " Sekunden";
@@ -199,13 +199,13 @@
 			
 			}
 			
-			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _websites_searched
+			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _tmp_websites_actual_run
 			function crawlPage($url, $host, $connection){
 			
-			// writes into table _websites searched MAIN URL
+			// writes into table _tmp_websites_actual_run MAIN URL
 					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
 					SELECT * FROM(SELECT '" . $url . "') as tmp 
-					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$url."') LIMIT 1")){
+					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1")){
 					} else {} 
 					
 			/* $input = @file_get_contents($url);
@@ -221,10 +221,10 @@
 					//if host is in match then write link into database - deletes all links to other websites
 					if(strpos($websiteLink, $host)){
 					
-					// writes into table _websites searched SUB URL
-					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+					// writes into table _tmp_websites_actual_run searched SUB URL
+					if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
 					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
-					WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink."') LIMIT 1")){
+					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink."') LIMIT 1")){
 					} else {} 
 					//goes into depth 2
 					
@@ -241,10 +241,10 @@
 							//if host is in match then write link into database - deletes all links to other websites
 							if(strpos($websiteLink2, $host)){
 					
-							// writes into table _websites searched SUBSUB URL
-							if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+							// writes into table _tmp_websites_actual_run SUBSUB URL
+							if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
 							SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
-							WHERE NOT EXISTS (SELECT url from _websites_searched where url = '".$websiteLink2."') LIMIT 1")){
+							WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1")){
 							} else {} 
 							}
 					 
@@ -254,11 +254,11 @@
 			} 
 			}*/
 			}
-			//returns the result of all websites in table _websites_searched
+			//returns the result of all websites in table _tmp_websites_actual_run
 			function getAllURLsForSearch($connection){
 				
 				$allURLsOfWebsite = array();
-				$result = mysqli_query($connection, "SELECT url FROM _websites_searched" );
+				$result = mysqli_query($connection, "SELECT url FROM _tmp_websites_actual_run" );
 				while($row = mysqli_fetch_array($result))
 				{
 					$allURLsOfWebsite[] = $row['url'];

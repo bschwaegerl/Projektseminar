@@ -115,8 +115,10 @@
 	function cleanupUpEnvironment($connection){
 		
 		mysqli_query($connection, "DELETE FROM _innovation_check");
+		mysqli_query($connection, "ALTER TABLE _innovation_check AUTO_INCREMENT=1");
 
-		mysqli_query($connection, "DELETE FROM _websites_searched");
+		mysqli_query($connection, "DELETE FROM _tmp_websites_actual_run");
+		mysqli_query($connection, "ALTER TABLE _tmp_websites_actual_run AUTO_INCREMENT=1");
 
 	}
 		
