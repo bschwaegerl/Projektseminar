@@ -177,9 +177,9 @@
 		
 			foreach($wordsOfWebsite as $key=>$searchedWord){	
 				$wordsOfWebsiteWithUrls[] = array($searchedWord,$url);	
-				if(mysqli_query($connection, "INSERT INTO innovation_check (word, url) VALUES ('" . $searchedWord . "', '" . $url . "')" )){
+				if(mysqli_query($connection, "INSERT INTO _innovation_check (word, url) VALUES ('" . $searchedWord . "', '" . $url . "')" )){
 			}else{
-				echo "innovation_check failed";
+				echo "_innovation_check failed";
 			}
 			}
 

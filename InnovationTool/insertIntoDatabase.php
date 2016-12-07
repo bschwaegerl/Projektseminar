@@ -73,7 +73,7 @@
 			if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
 					SELECT * FROM (SELECT
 				(SELECT id from _innovation_found where word = '".$checkedWord."'),
-				(SELECT url from innovation_check where word = '".$checkedWord."'),
+				(SELECT url from _innovation_check where word = '".$checkedWord."'),
 				'".date("Y-m-d H:i:s", time())."') as tmp LIMIT 1" )){
 					
 					echo $checkedWord ." added to _innovation_found_urls!";
@@ -114,7 +114,7 @@
 	//function for cleaning up the environment
 	function cleanupUpEnvironment($connection){
 		
-		mysqli_query($connection, "DELETE FROM innovation_check");
+		mysqli_query($connection, "DELETE FROM _innovation_check");
 
 		mysqli_query($connection, "DELETE FROM _websites_searched");
 
