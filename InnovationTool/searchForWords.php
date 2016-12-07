@@ -203,7 +203,7 @@
 			function crawlPage($url, $host, $connection){
 			
 			// writes into table _tmp_websites_actual_run MAIN URL
-					if(mysqli_query($connection, "INSERT INTO _websites_searched (url) 
+					if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
 					SELECT * FROM(SELECT '" . $url . "') as tmp 
 					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1")){
 					} else {} 
