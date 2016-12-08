@@ -57,16 +57,31 @@
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
 		echo "Benötigte Zeit: " . (microtime(true) - $time) . " Sekunden";
 		
+		//Tabelle 
+		echo "<table border='1'>
+		<tr>
+		<th></th>
+		<th>Wort</th>
+		<th>URL</th>
+		</tr>";
+		
 		//form action for button click
 		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
 		foreach($supposedInnovations as $key=>$suppInno){
 		
-		//checklist --> post array with checked words
-		echo "<input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/>".$supposedInnovations[$key][0]. " ".$supposedInnovations[$key][1]."<br>";
-		//post array with all word not found
-		echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
+			//Tabellentupel pro Innovation
+			echo "<tr>";
+			echo "<td> <input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/> </td>";
+			echo "<td>" .$supposedInnovations[$key][0]. "</td>";
+			echo "<td> <a href=\"".$supposedInnovations[$key][1]."\" </a>" .$supposedInnovations[$key][1]. "</td>";
+			echo "</tr>";
+			
+			//post array with all word not found
+			echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
 
 		}
+		echo "</table>";
+
 			//build the database connection
 			function buildDatabaseConnection(){
 				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
@@ -209,7 +224,7 @@
 			SELECT * FROM(SELECT '" . $url . "') as tmp 
 			WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1");
 					
-			$input = @file_get_contents($url);
+		/*	$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -251,11 +266,11 @@
 									}
 					 
 							} 
-						} */
+						} 
 						
 					}
 				} 
-			}
+			} */
 		}
 			
 		//returns the result of all websites in table _tmp_websites_actual_run
