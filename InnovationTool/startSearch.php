@@ -1,5 +1,5 @@
 <html>
-</head>
+<head><title>InnovationTool</title></head> 
 <body>
 <?php
 
@@ -28,5 +28,5 @@
 	<input type="submit" id="btStartSearch" value="Start Search!"/>
 
 </body>
-<html>
+</html>
 	
