@@ -284,6 +284,7 @@
 			}
 			
 			foreach($allURLsOfWebsite as $key=>$url){
+				if((in_array($url,$urlsSearched)) && (!in_array($url, $urlsMain))){
 					unset($allURLsOfWebsite[$key]);
 				}
 				
