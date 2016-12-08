@@ -180,10 +180,11 @@
 				$wordsOfWebsiteWithUrls[] = array($searchedWord,$url);	
 				if(mysqli_query($connection, "INSERT INTO _innovation_check (word, url) VALUES ('" . $searchedWord . "', '" . $url . "')" )){
 			}else{
-				echo "_innovation_check failed";
+				echo "failed to insert ".$searchedWord." into _innovation_check";
 			}
 			}
-
+			
+			mysqli_query($connection, "INSERT INTO _websites_searched (url) VALUES ('" . $url . "')");
 			return $wordsOfWebsiteWithUrls;
 		
 		
@@ -201,20 +202,19 @@
 			}
 			
 			//get for every link the suburls and removes all suburls, which does not contain the origin host and writes it into table _tmp_websites_actual_run
-			function crawlPage($url, $host, $connection){
+		function crawlPage($url, $host, $connection){
 			
 			// writes into table _tmp_websites_actual_run MAIN URL
-					if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
-					SELECT * FROM(SELECT '" . $url . "') as tmp 
-					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1")){
-					} else {} 
+			mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
+			SELECT * FROM(SELECT '" . $url . "') as tmp 
+			WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1");
 					
 			$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
 				foreach($matches as $match) {
-					// $match[2] = link address
+					//$match[2] = link address
 					//$match[3] = link text
 					//trim all spaces from link
 					$websiteLink = trim($match[2]);
@@ -222,50 +222,75 @@
 					//if host is in match then write link into database - deletes all links to other websites
 					if(strpos($websiteLink, $host)){
 					
-					// writes into table _tmp_websites_actual_run searched SUB URL
-					if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
-					SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
-					WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink."') LIMIT 1")){
-					} else {} 
-					//goes into depth 2
-					
-					/*$input2 = @file_get_contents($websiteLink) ;
-					$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+						// writes into table _tmp_websites_actual_run searched SUB URL
+						mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
+						SELECT * FROM(SELECT '" . $websiteLink . "') as tmp 
+						WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink."') LIMIT 1");
+								
+						
+						//goes into depth 2
 				
-					if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
-						foreach($matches2 as $match2) {
-							// $match[2] = link address
-							//$match[3] = link text
-							//trim all spaces from link
-							$websiteLink2 = trim($match2[2]);
+						/*$input2 = @file_get_contents($websiteLink) ;
+						$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+				
+						if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
+							foreach($matches2 as $match2) {
+								// $match[2] = link address
+								//$match[3] = link text
+								//trim all spaces from link
+								$websiteLink2 = trim($match2[2]);
 							
-							//if host is in match then write link into database - deletes all links to other websites
-							if(strpos($websiteLink2, $host)){
+								//if host is in match then write link into database - deletes all links to other websites
+									if(strpos($websiteLink2, $host)){
 					
-							// writes into table _tmp_websites_actual_run SUBSUB URL
-							if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
-							SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
-							WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1")){
-							} else {} 
-							}
+										// writes into table _tmp_websites_actual_run SUBSUB URL
+											if(mysqli_query($connection, "INSERT INTO _tmp_websites_actual_run (url) 
+											SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
+											WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1")){
+											} else {} 
+									}
 					 
-					} 
-			} */
+							} 
+						} */
+						
+					}
+				} 
 			}
-			} 
-			}
-			}
-			//returns the result of all websites in table _tmp_websites_actual_run
-			function getAllURLsForSearch($connection){
+		}
+			
+		//returns the result of all websites in table _tmp_websites_actual_run
+		function getAllURLsForSearch($connection){
 				
-				$allURLsOfWebsite = array();
-				$result = mysqli_query($connection, "SELECT url FROM _tmp_websites_actual_run" );
-				while($row = mysqli_fetch_array($result))
-				{
-					$allURLsOfWebsite[] = $row['url'];
+			$allURLsOfWebsite = array();
+			$urlsSearched = array();
+			$urlsMain = array();
+			
+			$result = mysqli_query($connection, "SELECT url FROM _tmp_websites_actual_run" );
+			$result2 = mysqli_query($connection,"SELECT url FROM _websites_searched");
+			$result3 = mysqli_query($connection,"SELECT url FROM _websites");
+
+			
+			while($row = mysqli_fetch_array($result))
+			{
+				$allURLsOfWebsite[] = $row['url'];
+			}
+			while($row = mysqli_fetch_array($result2))
+			{
+				$urlsSearched[] = $row['url'];
+			}
+			while($row = mysqli_fetch_array($result3))
+			{
+				$urlsMain[] = $row['url'];
+			}
+			
+			foreach($allURLsOfWebsite as $key=>$url){
+					unset($allURLsOfWebsite[$key]);
 				}
-				return $allURLsOfWebsite;
-			}	
+				
+			}
+			
+		return $allURLsOfWebsite;
+		}	
 		
 ?>
 		
