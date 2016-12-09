@@ -22,6 +22,9 @@
 				mysqli_query($connection, "DELETE FROM _innovation_found WHERE id = $_POST[hiddenFound]");
 			}	
 			
+			echo "<script language=\"javascript\">";
+			echo "alert(\"" . $_POST['hiddenFoundWord'] . " erfolgreich gelöscht\")";
+			echo "</script>";
 			}
 
 			//if add clicked
@@ -43,6 +46,9 @@
 			
 			mysqli_query($connection, $insertInnoFoundUrls);
 
+			echo "<script language=\"javascript\">";
+			echo "alert(\"" . $_POST['wort'] . " erfolgreich hinzugefügt\")";
+			echo "</script>";
 			}				
 			//get table innovation_found
 			$innovationFoundTable = getInnoFoundTable($connection);
@@ -119,6 +125,7 @@
 						echo "</tr>";
 						echo "<input type=hidden name=hiddenFoundUrl value=" . $innovationFoundUrls[0]. ">";
 						echo "<input type=hidden name=hiddenFound value=" . $innovationFound[0]. ">";
+						echo "<input type=hidden name=hiddenFoundWord value=" . $innovationFound[1]. ">";
 						echo "</form>";
 					}
 				}	
