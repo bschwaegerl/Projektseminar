@@ -74,7 +74,11 @@
 					SELECT * FROM (SELECT
 				(SELECT id from _innovation_found where word = '".$checkedWord."'),
 				(SELECT url from _innovation_check where word = '".$checkedWord."'),
-				'".date("Y-m-d H:i:s", time())."') as tmp LIMIT 1" )){
+				'".date("Y-m-d H:i:s", time())."') as tmp WHERE NOT EXISTS
+				(SELECT * from _innovation_found_urls where url = 
+				(SELECT url FROM _innovation_check where word = '".$checkedWord."')				
+				AND innovation_found_id =
+				(SELECT id from _innovation_found where word = '".$checkedWord."'))LIMIT 1" )){
 					
 					echo $checkedWord ." added to _innovation_found_urls!";
 					
