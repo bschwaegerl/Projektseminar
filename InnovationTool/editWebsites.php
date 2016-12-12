@@ -1,5 +1,4 @@
 <html>
-<head><title>Edit Websites</title></head> 
 <body>
 	
 	<?php
@@ -12,7 +11,11 @@
 			if(mysqli_query($connection, "INSERT INTO _websites (url) SELECT * FROM (SELECT '".$newWebsite."') as tmp WHERE NOT EXISTS
 			(SELECT * FROM _websites where url = '".$newWebsite."') LIMIT 1")){
 				
-				echo $newWebsite." was added to table _websites!";
+				echo $newWebsite." wurde als neue Website abgespeichert!";
+				echo "<form action='index.html' method ='post'>";
+				echo "<br>";
+				echo "<input type='submit' name='hauptseite' value='Zurück zur Startseite'>";
+				echo "</form>";
 				
 				mysqli_close($connection);
 			}
@@ -25,7 +28,11 @@
 				
 				if(mysqli_query($connection, "DELETE FROM _websites WHERE url = '".$websiteDel."'")){
 				
-					echo $websiteDel." was deleted from table _websites! <br>";
+					echo $websiteDel." wurde gelöscht! <br>";
+					echo "<form action='index.html' method ='post'>";
+					echo "<br>";
+					echo "<input type='submit' name='hauptseite' value='Zurück zur Startseite'>";
+					echo "</form>";
 				
 					
 				}
@@ -36,9 +43,9 @@
 		}else{
 	?>
 			<form action="editWebsites.php" method="POST">
-				Insert the new website:<br>
+				Neue Website hinzufügen:<br>
 					<input type="url" name="website">
-					<input type="submit" name="btInsert" value="Save website">
+					<input type="submit" name="btInsert" value="Website speichern">
 			</form>
 			
 			<br><br><br><br>
@@ -53,7 +60,7 @@
 			echo "<table border=1>
 					<tr>
 					<th></th>
-					<th>Select URLs to delete</th>
+					<th>Urls zum Löschen auswählen</th>
 					</tr>";
 					
 				foreach($allMainUrls as $key=>$mainUrl){
@@ -67,7 +74,8 @@
 				}
 	?>
 			</table>
-				<input type="submit" name="btDelete" value="Delete website">
+				<br>
+				<input type="submit" name="btDelete" value="Website löschen">
 			</form>
 	
 	<?php

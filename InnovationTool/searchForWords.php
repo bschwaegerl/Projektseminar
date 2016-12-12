@@ -5,7 +5,7 @@
 		<?php
 		
 			set_time_limit(0);
-			$time = microtime(true);
+			$time = microtime(true)/60;
 			//gets the checked websites from the index.php
 			if (isset($_POST['websiteList'])){
 			$websitesForSearch = $_POST['websiteList'];
@@ -55,7 +55,7 @@
 		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _tmp_websites_actual_run" )). '<br>';
 		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
-		echo "Benötigte Zeit: " . (microtime(true) - $time) . " Sekunden";
+		echo "Benötigte Zeit: " . round(((microtime(true)/60) - $time),2) . " Minuten";
 		
 		//Tabelle 
 		echo "<table border='1'>
@@ -76,7 +76,7 @@
 			echo "<td> <a href=\"".$supposedInnovations[$key][1]."\" </a>" .$supposedInnovations[$key][1]. "</td>";
 			echo "</tr>";
 			
-			//post array with all word not found
+			//post array with all words not found
 			echo "<input type='hidden' id='chkbxHidden' name='checkListHidden[]' value=\"".$supposedInnovations[$key][0]. "\"/>";
 
 		}
@@ -309,8 +309,14 @@
 		}	
 		
 ?>
+			<br>
+			<input type="submit" id="btSend" value="Wörter in Datenbank speichern!"/>
+		</form>
 		
-			<input type="submit" id="btSend" value="Send Words!"/>
+		
+		<br>
+		<form action="index.html" method="POST">
+			<input type="submit" id="btCancel" value="Abbrechen und Bearbeitung aufschieben"/>
 		</form>
 		
 	</body> 

@@ -21,3 +21,8 @@ TODO PROJEKTSEMINAR
 5)	innovation_check ist temporär. (Ändern vom Namen zu _innovation_check)
 	wird bei Abbruch, sprich beim Wechsel von searchForWords.php zu insertIntoDatabase.php nach reinschreiben in Datenbank gelöscht.
 	ABER: Bei Abbruch also von searchForWords.php zu index.php noch teilweise befüllt. betrifft genauso  _websites_searched
+	
+
+12.12."016:
+
+manuelle Inno hinzufügen, schwachsinn??

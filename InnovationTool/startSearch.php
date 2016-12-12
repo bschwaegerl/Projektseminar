@@ -6,6 +6,10 @@
 	$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
 	$connection = mysqli_connect($hostname, $user, $password, $db);
 	mysqli_set_charset($connection,"utf8");
+	
+	//clean up websites for the run
+	mysqli_query($connection, "DELETE FROM _tmp_websites_actual_run");
+	mysqli_query($connection, "ALTER TABLE _tmp_websites_actual_run AUTO_INCREMENT=1");
 				
 	echo "<form action=\"searchForWords.php\" method =\"post\">";
 
@@ -25,7 +29,7 @@
 ?>
 
 	<br></br>
-	<input type="submit" id="btStartSearch" value="Start Search!"/>
+	<input type="submit" id="btStartSearch" value="Suche beginnen!"/>
 
 </body>
 </html>

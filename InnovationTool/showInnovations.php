@@ -144,7 +144,7 @@
 ?>
 	<form action="index.html" method ="post">
 	<br>
-	<input type="submit" name="hauptseite" value="Back to main page">
+	<input type="submit" name="hauptseite" value="Zurück zur Startseite">
 	</form>
 	</body> 
 </html>			

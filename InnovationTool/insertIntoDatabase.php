@@ -23,7 +23,7 @@
 	insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
 	
 	//deletes everything from table _wesbties_searched and table _innvation_check
-	cleanupUpEnvironment($connection);
+	cleanupUpEnvironment($connection, $allWords);
 	
 	mysqli_close($connection);	
 
@@ -47,7 +47,7 @@
 				
 			
 			}else{
-				echo $uncheckedWord."failed adding word to Blacklist";
+				echo $uncheckedWord." konnte nicht in die Blacklist gespeichert werden. <br>";
 			}
 		}
 		//add checked words to innovation_found and innovation_found_urls
@@ -59,15 +59,14 @@
 				SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
 			(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
 				
-				echo $checkedWord. " added to _innovation_found!";
+				echo $checkedWord. " wurde als Innovation gespeichert. <br>";
 			}else{
-				echo $checkedWord. " existiert bereits in der Tabelle _innovation_found";
+				echo $checkedWord. " existiert bereits als Innovation. <br>";
 			}
 			
 			//current system date
 			date_default_timezone_set('Europe/Berlin');
 			$date = date('d/m/Y H:i:s', time());
-			echo $date;
 			
 			//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
 			if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
@@ -80,10 +79,10 @@
 				AND innovation_found_id =
 				(SELECT id from _innovation_found where word = '".$checkedWord."'))LIMIT 1" )){
 					
-					echo $checkedWord ." added to _innovation_found_urls!";
+					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde gespeichert! <br>";
 					
 			}else{
-					echo "FOREIGNKEY FAILURE";
+					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde NICHT gespeichert! <br>";
 			}
 			
 		
@@ -116,15 +115,26 @@
 			}
 	
 	//function for cleaning up the environment
-	function cleanupUpEnvironment($connection){
+	function cleanupUpEnvironment($connection, $allWords){
+		foreach($allWords as $handledWord){
+			mysqli_query($connection, "DELETE FROM _innovation_check where word = '".$handledWord."'");
+			
+		}
 		
-		mysqli_query($connection, "DELETE FROM _innovation_check");
-		mysqli_query($connection, "ALTER TABLE _innovation_check AUTO_INCREMENT=1");
-
-		mysqli_query($connection, "DELETE FROM _tmp_websites_actual_run");
-		mysqli_query($connection, "ALTER TABLE _tmp_websites_actual_run AUTO_INCREMENT=1");
 
 	}
 		
 	
 	?>
+<html>
+	<head><title>Inserted into Database</title></head> 
+	<body>
+		<br><br>
+		Die (restlichen) Wörter wurden der Blacklist hinzugefügt.
+		
+		<form action="index.html" method ="post">
+			<br>
+			<input type="submit" name="hauptseite" value="Zurück zur Startseite">
+		</form>
+	</body>
+</html>
