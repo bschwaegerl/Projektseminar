@@ -31,17 +31,17 @@
 
 	//build database connection
 	function buildDatabaseConnection(){
-				$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
-				$connection = mysqli_connect($hostname, $user, $password, $db);
-				mysqli_set_charset($connection,"utf8");
+		
+		$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
+		$connection = mysqli_connect($hostname, $user, $password, $db);
+		mysqli_set_charset($connection,"utf8");
 				
-				return $connection;
-			}
+		return $connection;
+	}
 	
 	//insert words into blacklist ($uncheckedWord) and add words to _innovation_found / _innovation_found_urls ($checkedWords)
 	function insertIntoDatabase($connection, $uncheckedWords, $checkedWords){
-		
-		
+
 		//add words to blacklist
 		foreach($uncheckedWords as $key=>$uncheckedWord){
 			$tableName = get_table_name($uncheckedWord);
@@ -52,26 +52,29 @@
 				echo $uncheckedWord." konnte nicht in die Blacklist gespeichert werden. <br>";
 			}
 		}
+		
 		//add checked words to innovation_found and innovation_found_urls
-	if(!empty($checkedWords)){
-		foreach($checkedWords as $key=>$checkedWord) {
+		if(!empty($checkedWords)){
+			foreach($checkedWords as $key=>$checkedWord) {
 			
-			//insert into _innovation_found if not exists			
-			if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
-				SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
-			(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
+				//insert into _innovation_found if not exists			
+				if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
+					SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
+				(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
 				
-				echo $checkedWord. " wurde als Innovation gespeichert. <br>";
-			}else{
-				echo $checkedWord. " existiert bereits als Innovation. <br>";
-			}
+					echo $checkedWord. " wurde als Innovation gespeichert. <br>";
+					
+				}else{
+					
+					echo $checkedWord. " existiert bereits als Innovation. <br>";
+				}
 			
-			//current system date
-			date_default_timezone_set('Europe/Berlin');
-			$date = date('d/m/Y H:i:s', time());
+				//current system date
+				date_default_timezone_set('Europe/Berlin');
+				$date = date('d/m/Y H:i:s', time());
 			
-			//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
-			if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
+				//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
+				if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
 					SELECT * FROM (SELECT
 				(SELECT id from _innovation_found where word = '".$checkedWord."'),
 				(SELECT url from _innovation_check where word = '".$checkedWord."'),
@@ -83,21 +86,22 @@
 					
 					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde gespeichert! <br>";
 					
-			}else{
+				}else{
+					
 					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde NICHT gespeichert! <br>";
-			}
+				
+				}
 			
-		
+			}
 		}
-	}
 	}
 	
 	
 	//compares  every word of _innovation_check with the checkedWord array . if word of all words is in checkedWOrdArray it will be deleted
 	function getUncheckedWords($allWords, $checkedWords){
 		
-		foreach($allWords as $key=>$word)
-		{
+		foreach($allWords as $key=>$word){
+			
 			if(!empty($checkedWords)){
 				if(in_array($word, $checkedWords)){
 					unset($allWords[$key]);
@@ -109,12 +113,12 @@
 	
 	function get_table_name($word){
 				
-			$firstLetter = mb_substr($word,0,1,"UTF-8");
-			$firstLetter = mb_strtolower($firstLetter, "UTF-8");
+		$firstLetter = mb_substr($word,0,1,"UTF-8");
+		$firstLetter = mb_strtolower($firstLetter, "UTF-8");
 			
-			return $firstLetter;
+		return $firstLetter;
 			
-			}
+	}
 	
 	//function for cleaning up the environment
 	function cleanupUpEnvironment($connection, $allWords){
@@ -122,8 +126,6 @@
 			mysqli_query($connection, "DELETE FROM _innovation_check where word = '".$handledWord."'");
 			
 		}
-		
-
 	}
 		
 	
