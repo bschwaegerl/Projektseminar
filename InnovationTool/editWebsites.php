@@ -29,14 +29,13 @@
 				if(mysqli_query($connection, "DELETE FROM _websites WHERE url = '".$websiteDel."'")){
 				
 					echo $websiteDel." wurde gelöscht! <br>";
-					echo "<form action='index.html' method ='post'>";
-					echo "<br>";
-					echo "<input type='submit' name='hauptseite' value='Zurück zur Startseite'>";
-					echo "</form>";
-				
 					
 				}
 			}
+			echo "<form action='index.html' method ='post'>";
+			echo "<br>";
+			echo "<input type='submit' name='hauptseite' value='Zurück zur Startseite'>";
+			echo "</form>";
 			
 			mysqli_close($connection);
 				

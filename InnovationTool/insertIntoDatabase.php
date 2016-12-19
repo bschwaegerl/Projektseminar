@@ -1,5 +1,7 @@
 <?php
 	
+	set_time_limit(0);			
+
 	//Get all checked Words
 	if (isset($_POST['checkList'])){
 		$checkedWords = $_POST['checkList'];
