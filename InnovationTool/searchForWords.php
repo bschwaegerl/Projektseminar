@@ -109,7 +109,7 @@
 			set_time_limit(0);			
 			
 			//komplettes html file
-			$text = file_get_html($url)->plaintext;
+			$text = @file_get_html($url)->plaintext;
 			
 			//Umlaute zurück erstellen
 			$text = preg_replace('/&auml;/','ä',$text);
@@ -235,7 +235,7 @@
 			SELECT * FROM(SELECT '" . $url . "') as tmp 
 			WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1");
 					
-		/*	$input = @file_get_contents($url);
+			$input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -256,7 +256,7 @@
 						
 						//goes into depth 2
 				
-						/*$input2 = @file_get_contents($websiteLink) ;
+						$input2 = @file_get_contents($websiteLink) ;
 						$regexp2 = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 						if(preg_match_all("/$regexp/siU", $input2, $matches2, PREG_SET_ORDER)) {
@@ -281,7 +281,7 @@
 						
 					}
 				} 
-			} */
+			}
 		}
 		
 		function getRowColor($innovationsFound, $word){
