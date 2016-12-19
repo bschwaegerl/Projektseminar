@@ -259,7 +259,7 @@
 										// writes into table _tmp_websites_actual_run SUBSUB URL
 										mysqli_query($connection, 	"INSERT INTO _tmp_websites_actual_run (url) 
 																		SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
-																		WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1"))		
+																		WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1");		
 									}
 								} 
 							} 		
