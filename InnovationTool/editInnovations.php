@@ -48,7 +48,7 @@
 	<form action="editInnovations.php" method="POST">
 		Ausstehende Wörter nach folgendem Anfangsbuchstaben filtern:
 			<select name="specificLetter">
-				<option value="">Nicht filtern & alle anzeigen</option>
+				<option value="">Alle anzeigen</option>
 				
 				<?php
 					$alphabet = range('a','z');

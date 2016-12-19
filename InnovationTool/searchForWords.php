@@ -19,6 +19,15 @@
 			//database connection
 			$connection = buildDatabaseConnection();
 			
+			//saves all innovations already found in an array
+			
+			$innovationsFound = array();
+			$result = mysqli_query($connection,"SELECT word FROM _innovation_found");
+			while($row = mysqli_fetch_array($result))
+			{
+				$innovationsFound[] = $row[0];
+			}
+			
 			//variable to count all words 
 			$counterForAllWords = 0;
 			
@@ -50,13 +59,13 @@
 		//analysis of the run
 		foreach($websitesForSearch as $key=>$url)
 			{
-		echo "MAIN-URL " .$key. ": " . $url	. '<br>';
+		echo "MAIN-URL " .($key+1). ": " . $url	. '<br>';
 			}
 		echo "URLs durchsucht insgesamt: " . mysqli_num_rows(mysqli_query($connection, "SELECT * FROM _tmp_websites_actual_run" )). '<br>';
 		echo "Wörter insgesamt untersucht: " .$counterForAllWords . '<br>';
 		echo "Wörter nicht gefunden: " . count($supposedInnovations) . '<br>';
 		echo "Benötigte Zeit: " . round(((microtime(true)/60) - $time),2) . " Minuten";
-		
+		echo "<br><br>Grün-markierte Wörter sind bereits gefundene Innvoavtionen.<br>";
 		//Tabelle 
 		echo "<table border='1'>
 		<tr>
@@ -69,9 +78,11 @@
 		echo "<form action=\"insertIntoDatabase.php\" method =\"post\">";
 		foreach($supposedInnovations as $key=>$suppInno){
 		
+			$rowColorAndChecked = getRowColor($innovationsFound, $supposedInnovations[$key][0]);
+			
 			//Tabellentupel pro Innovation
-			echo "<tr>";
-			echo "<td> <input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/> </td>";
+			echo "<tr bgcolor='".$rowColorAndChecked[0]."'>";
+			echo "<td> <input type='checkbox' id='chkbx' name='checkList[]' value=\"".$supposedInnovations[$key][0]."\"/".$rowColorAndChecked[1]."> </td>";
 			echo "<td>" .$supposedInnovations[$key][0]. "</td>";
 			echo "<td> <a href=\"".$supposedInnovations[$key][1]."\" </a>" .$supposedInnovations[$key][1]. "</td>";
 			echo "</tr>";
@@ -271,6 +282,19 @@
 					}
 				} 
 			} */
+		}
+		
+		function getRowColor($innovationsFound, $word){
+				$colorAndChecked = array();
+			if(in_array($word,$innovationsFound)){
+				$colorAndChecked[0] = "##4EEE94";
+				$colorAndChecked[1] = "checked";
+			}else{
+				$colorAndChecked[0] = "#FFFFFF";
+				$colorAndChecked[1] = "";
+			}
+		
+			return $colorAndChecked;
 		}
 			
 		//returns the result of all websites in table _tmp_websites_actual_run
