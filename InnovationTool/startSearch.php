@@ -1,6 +1,7 @@
 <html>
 <head><title>InnovationTool</title></head> 
 <body>
+		Bitte wählen Sie die Websites aus, die Sie durchsuchen wollen: <br><br>
 <?php
 
 	$hostname = "localhost"; $user = "root"; $password = ""; $db = "innovation";
