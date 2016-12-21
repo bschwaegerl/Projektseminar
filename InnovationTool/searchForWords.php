@@ -235,7 +235,7 @@
 			SELECT * FROM(SELECT '" . $url . "') as tmp 
 			WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1");
 					
-			$input = @file_get_contents($url);
+			/* $input = @file_get_contents($url);
 			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
 				
 			if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
@@ -281,7 +281,7 @@
 						
 					}
 				} 
-			}
+			 }*/
 		}
 		
 		function getRowColor($innovationsFound, $word){
@@ -338,7 +338,7 @@
 		</form>
 		
 		
-		<br>
+		<br><br>
 		<form action="index.html" method="POST">
 			<input type="submit" id="btCancel" value="Abbrechen und Bearbeitung aufschieben"/>
 		</form>

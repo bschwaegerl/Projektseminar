@@ -135,7 +135,7 @@
 				echo "<form acion=showInnovations.php method=post>";
 				echo "<tr>";
 				echo "<td><input type=text name=wort value=> </td>";
-				echo "<td> <input type=text name=url value=>  </td>";
+				echo "<td> <input type=url name=url value=>  </td>";
 				echo "<td>" .date('d/m/Y H:i:s', time()). "</td>";
 				echo "<td> <input type=submit name=hinzufügen value=+></td>";
 				echo "</tr>";

@@ -10,6 +10,10 @@
 			
 			$connection = buildDatabaseConnection();
 			$allUnfinishedWordsWithUrls = getAllUnfinishedWords($connection, $specificLetter);
+
+			$innovationsFound = getAllInnovationsFound($connection);
+			
+			echo "Grün-markierte Wörter sind bereits gefundene Innvoavtionen.<br><br>";
 			
 			//create table
 			echo "<table border=1>
@@ -20,10 +24,12 @@
 					</tr>";
 					
 				foreach($allUnfinishedWordsWithUrls as $key=>$unfinishedWordWithUrl){
-		
+					
+					$rowColorAndChecked = getRowColor($innovationsFound, $unfinishedWordWithUrl[0]);
+					
 					//Tabellentupel pro MainURL
-					echo "<tr>";
-					echo "<td> <input type='checkbox' id='chkbx' name='checkList[]' value=\"".$unfinishedWordWithUrl[0]."\"/> </td>";
+					echo "<tr bgcolor='".$rowColorAndChecked[0]."'>";
+					echo "<td> <input type='checkbox' id='chkbx' name='checkList[]' value=\"".$unfinishedWordWithUrl[0]."\"/".$rowColorAndChecked[1]."> </td>";
 					echo "<td>" .$unfinishedWordWithUrl[0]. "</td>";
 					echo "<td> <a href=\"".$unfinishedWordWithUrl[1]."\" </a>" .$unfinishedWordWithUrl[1]. "</td>";
 					echo "</tr>";
@@ -97,6 +103,31 @@
 			mysqli_set_charset($connection,"utf8");
 				
 			return $connection;
+		}
+		
+		function getRowColor($innovationsFound, $word){
+				$colorAndChecked = array();
+			if(in_array($word,$innovationsFound)){
+				$colorAndChecked[0] = "##4EEE94";
+				$colorAndChecked[1] = "checked";
+			}else{
+				$colorAndChecked[0] = "#FFFFFF";
+				$colorAndChecked[1] = "";
+			}
+		
+			return $colorAndChecked;
+		}
+		
+		function getAllInnovationsFound($connection){
+			
+			$innovationsFound = array();
+			$result = mysqli_query($connection,"SELECT word FROM _innovation_found");
+			while($row = mysqli_fetch_array($result))
+			{
+				$innovationsFound[] = $row[0];
+			}
+			
+			return $innovationsFound;
 		}
 	?>
 </body>
