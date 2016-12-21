@@ -222,13 +222,13 @@
 											SELECT * FROM(SELECT '" . $url . "') as tmp 
 											WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$url."') LIMIT 1");
 					
-<<<<<<< HEAD
+
 			/* $input = @file_get_contents($url);
-			$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
-=======
+				$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+
 				$input = @file_get_contents($url);
 				$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
->>>>>>> origin/master
+
 				
 				if(preg_match_all("/$regexp/siU", $input, $matches, PREG_SET_ORDER)) {
 					foreach($matches as $match) {
@@ -266,23 +266,15 @@
 																		SELECT * FROM(SELECT '" . $websiteLink2 . "') as tmp 
 																		WHERE NOT EXISTS (SELECT url from _tmp_websites_actual_run where url = '".$websiteLink2."') LIMIT 1");		
 									}
-<<<<<<< HEAD
 					 
-							} 
-						} 
-						
-					}
-				} 
-			 }*/
-		}
-=======
 								} 
-							} 		
-						}	
+							} 
+						
+						}
 					} 
-				}
+				}*/
 			}
->>>>>>> origin/master
+
 		
 		function getRowColor($innovationsFound, $word){
 			$colorAndChecked = array();
@@ -332,13 +324,8 @@
 		<br>
 		<input type="submit" id="btSend" value="Wörter in Datenbank speichern!"/>
 		</form>
-<<<<<<< HEAD
-		
-		
 		<br><br>
-=======
-		<br>
->>>>>>> origin/master
+
 		<form action="index.html" method="POST">
 			<input type="submit" id="btCancel" value="Abbrechen und Bearbeitung aufschieben"/>
 		</form>
