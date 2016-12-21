@@ -9,6 +9,9 @@
 		$checkedWords = NULL;
 	}
 	
+	//eliminate all duplicates
+	$checkedWords = array_unique($checkedWords);
+	
 	//Get all Words
 	if (isset($_POST['checkListHidden'])){
 		$allWords = $_POST['checkListHidden'];
@@ -20,7 +23,7 @@
 	
 	//get all unchecked words
 	$uncheckedWords = getUncheckedWords($allWords, $checkedWords);
-	
+		
 	//insert unchecked words into blacklist and mark all checked words as innovations
 	insertIntoDatabase($connection, $uncheckedWords, $checkedWords);
 	
@@ -57,42 +60,50 @@
 		if(!empty($checkedWords)){
 			foreach($checkedWords as $key=>$checkedWord) {
 			
-				//insert into _innovation_found if not exists			
-				if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
-					SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
-				(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
+					$result = mysqli_query($connection, "SELECT url FROM _innovation_check where word = '" .$checkedWord."'");
+				
+					$allUrlsOfCheckedWords = array();
+				
+					while($row = mysqli_fetch_array($result)){
+					$allUrlsOfCheckedWords[] = $row[0];
+					}
+			
+					//insert into _innovation_found if not exists			
+					if(mysqli_query($connection, "INSERT INTO _innovation_found (word) 
+						SELECT * FROM (SELECT '".$checkedWord."') as tmp WHERE NOT EXISTS
+					(SELECT * FROM _innovation_found where word = '".$checkedWord."') LIMIT 1" )){
 				
 					echo $checkedWord. " wurde als Innovation gespeichert. <br>";
 					
-				}else{
-					
-					echo $checkedWord. " existiert bereits als Innovation. <br>";
-				}
+					}else{
+						echo $checkedWord. " existiert bereits als Innovation. <br>";
+					}
 			
-				//current system date
-				date_default_timezone_set('Europe/Berlin');
-				$date = date('d/m/Y H:i:s', time());
+					//current system date
+					date_default_timezone_set('Europe/Berlin');
+					$date = date("Y-m-d H:i:s", time());
 			
-				//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
-				if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
-					SELECT * FROM (SELECT
-				(SELECT id from _innovation_found where word = '".$checkedWord."'),
-				(SELECT url from _innovation_check where word = '".$checkedWord."'),
-				'".date("Y-m-d H:i:s", time())."') as tmp WHERE NOT EXISTS
-				(SELECT * from _innovation_found_urls where url = 
-				(SELECT url FROM _innovation_check where word = '".$checkedWord."')				
-				AND innovation_found_id =
-				(SELECT id from _innovation_found where word = '".$checkedWord."'))LIMIT 1" )){
+					foreach($allUrlsOfCheckedWords as $url){
+
+						//insert into _innovation_found_url with foreign key _innovation_found_id if not exists
+						if(mysqli_query($connection, "INSERT INTO _innovation_found_urls (innovation_found_id, url, date) 
+						SELECT 
+						(SELECT id from _innovation_found where word = '".$checkedWord."'),
+						'".$url."',
+						'".$date."' WHERE NOT EXISTS
+						(SELECT * from _innovation_found_urls where url = 
+						(SELECT url FROM _innovation_check where word = '".$checkedWord."' AND url ='".$url."' LIMIT 1)				
+						AND innovation_found_id =
+						(SELECT id from _innovation_found where word = '".$checkedWord."'))" )){
 					
-					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde gespeichert! <br>";
+							echo "Die Url zur Innovation ==> ".$checkedWord ." wurde gespeichert! <br>";
 					
-				}else{
+						}else{
 					
-					echo "Die Url zur Innovation ==> ".$checkedWord ." wurde NICHT gespeichert! <br>";
-				
-				}
-			
-			}
+							echo "Die Url zur Innovation ==> ".$checkedWord ." ist bereits vorhanden! <br>";
+						}
+					}	
+				}	
 		}
 	}
 	
